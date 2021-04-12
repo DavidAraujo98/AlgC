@@ -1,6 +1,6 @@
 #include <stdio.h>
 #include <math.h>
-#include <time.h>
+#include "elapsed_time.h"
 
 int c = 0;
 double c1 = 0.24253562503633297352;
@@ -53,47 +53,47 @@ int main(void){
 	scanf("%d", &n);
 	
 	printf("Recursiva\nn\tP(n)\t#Op\n");
-	int t = time(NULL);
+	(void)elapsed_time();
 	for(int i = 0; i <= n; i++){
 		printf("%d\t%d\t",i, fibrc(i));
 		printf("%d\n", c);
 	}
-	printf("Time: %ld\n",(time(NULL)-t));
+	printf("Time: %12.9f\n",elapsed_time());
 
 	printf("\nIterativa\n");
-	t = time(NULL);
+	(void)elapsed_time();
 	for(int i = 0; i <= n; i++){
 		c = 0;
 		printf("%d\t%d\t", i, fibit(i));
 		printf("%d\n", c);
 	}
-	printf("Time: %ld\n",(time(NULL)-t));
+	printf("Time: %12.9f\n",elapsed_time());
 	
 
 	printf("\nRecorrencia\n");
-	t = time(NULL);
+	(void)elapsed_time();
 	for(int i = 0; i <=n; i++){
 		c = 0;	
 		printf("%d\t%d\t", i,(int)fibre(i));
 		printf("%d\n", c);
 	}
-	printf("Time: %ld\n",(time(NULL)-t));
+	printf("Time: %12.9f\n",elapsed_time());
 
 	printf("\nTermo mais importante da equação de recorrencia\n");
-	t = time(NULL);
+	(void)elapsed_time();
 	for(int i = 0; i <= n; i++){
 		c = 0;
 		printf("%d\t%d\t", i, (int)fibeq(i));
 		printf("%d\n", c);
 	}
-	printf("Time: %ld\n",(time(NULL)-t));
+	printf("Time: %12.9f\n",elapsed_time());
 
 	printf("\nFormula fechada\n");
-	t = time(NULL);
+	(void)elapsed_time();
 	for(int i = 0; i <= n; i++){
 		c = 0;
 		printf("%d\t%d\t", i, (int)fibrd(i));
 		printf("%d\n", c);
 	}
-	printf("Time: %ld\n",(time(NULL)-t));
+	printf("Time: %12.9f\n",elapsed_time());
 }
