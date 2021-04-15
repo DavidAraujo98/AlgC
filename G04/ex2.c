@@ -16,9 +16,9 @@ int main(void){
 	}
 	
 	// Array operations
-	for(int i = 0; i < n-2; i++){
-		for(int j = i+1; j < n-1; j++){
-			for(int k = j+1; k < n; k++ ){
+	for(int k = 2; k < n; k++){
+		for(int j = 1; j < k; j++){
+			for(int i = 0; i < j; i++ ){
 				c++;
 				if(a[k] == a[i] + a[j]){
 					ne++;
