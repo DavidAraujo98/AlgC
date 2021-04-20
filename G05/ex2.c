@@ -16,27 +16,34 @@ int * getRandom(int range){
 	return r;
 }
 
-int seq(int *array){
-	int elem = 1;
-	for(int i = 1; i < 10; i++){
-		int dif = 1;
-		for (int j = 0; j < i; j++){
-			comp += 2;
-			if( *(array+i) % *(array+j) == 0 || *(array+j) % *(array+i) == 0) {
-				dif = 0	;
-				break;
+void seq(int *array, int *size){
+	int elem = 0;
+	for(int i = 0; i < *size; i++){
+		comp++;
+		if(*(array+i) != 1){
+			int dif = 1;
+			for (int j = 0; j < i; j++){
+				comp += 2;
+				if( *(array+i) % *(array+j) == 0 || *(array+j) % *(array+i) == 0) {
+					dif = 0	;
+					break;
+				}
 			}
-		}
-		if(dif == 1){
-			*(array+elem) = *(array+i);
+			if(dif == 1){
+				*(array+elem) = *(array+i);
+				elem++;
+			}	
+		}else{
 			elem++;
-		}			
-	}	
-	return elem;
+			break;
+		}		
+	}
+	*(size) = elem;	
 }
 
 int main(void){
 	int range = 10;
+	int size = 10;
 
 	printf("Range (from 0): ");
 	scanf("%d", &range);
@@ -44,15 +51,15 @@ int main(void){
 	int *a = getRandom(range);
 	
 	printf("Array is: [");
-	for(int i = 0; i < 10; i++){
+	for(int i = 0; i < size; i++){
 		printf("%d,", *(a+i));
 	}
 	printf("]\n");
 	
-	int nsize = seq(a);
+	seq(a, &size);
 	
 	printf("New array is: [");
-	for(int i = 0; i < nsize; i++){
+	for(int i = 0; i < size; i++){
 		printf("%d,", *(a+i));
 	}
 	printf("]\n");
