@@ -23,12 +23,19 @@ void seq(int *array, int *size){
 		if(*(array+i) != 1){
 			int dif = 1;
 			for (int j = 0; j < i; j++){
-				comp += 2;
-				if( *(array+i) % *(array+j) == 0 || *(array+j) % *(array+i) == 0) {
+				comp++;
+				if( *(array+i) % *(array+j) == 0) {
 					dif = 0	;
 					break;
-				}
+				}else{
+					comp++;
+					if( *(array+j) % *(array+i) == 0) {
+						dif = 0	;
+						break;
+					}
+				} 
 			}
+			comp++
 			if(dif == 1){
 				*(array+elem) = *(array+i);
 				elem++;
@@ -65,4 +72,5 @@ int main(void){
 	printf("]\n");
 
 	printf("Comparações: %d\n", comp);
+	printf("Nº Elementos: %d\n", size);
 }
