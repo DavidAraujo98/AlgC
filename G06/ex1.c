@@ -34,12 +34,11 @@ int T3(int n){
 
 int main(void){
 	int n = 2;
-
+	
 	printf("Value of n: ");
 	scanf("%d", &n);
 	
-	assert(n>2);
-	
+	assert(n>2);	
 	printf("N\tT1(N)\t#T1\tT2(N)\t#T2\tT3(N)\t#T3\n");
 	for(int i = 0; i <= n; i++){
 		c = 0;
