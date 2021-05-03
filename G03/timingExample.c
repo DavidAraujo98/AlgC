@@ -3,7 +3,6 @@
  */
 
 #include <stdio.h>
-
 #include "elapsed_time.h"
 
 /* definition of the 64-bit unsigned integer type */
