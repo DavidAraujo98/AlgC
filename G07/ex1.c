@@ -30,7 +30,6 @@ int func2(int n){
 				a[y] += a[y-1] + a[y-2];
 		}else{
 			a[y] = 1;
-		}
 	}
 	
 	return a[n];
