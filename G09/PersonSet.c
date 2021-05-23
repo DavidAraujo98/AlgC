@@ -84,8 +84,11 @@ static void append(PersonSet *ps, Person *p) {
   // MODIFY the function so that if the array is full,
   // use realloc to double the array capacity!
   //...
-	ps->array = (Person**)realloc(ps->array,(ps->capacity * 2));
-	ps->capacity = ps->capacity*2;
+	int i = ps->size - (ps->capacity/4);
+	if(i==0){
+		ps->capacity = ps->capacity*2;
+		ps->array = (Person**)realloc(ps->array,(ps->capacity * 2));
+	}
 	ps->array[ps->size] = p;
 	ps->size++;
 }
@@ -116,8 +119,6 @@ Person* PersonSetPop(PersonSet *ps) {
 // Remove the person with given id from *ps, and return it.
 // If no such person is found, return NULL and leave set untouched.
 Person *PersonSetRemove(PersonSet *ps, int id) {
-	// You may call search here!
-	//...
 	Person *p = NULL;
 
 	int v = search(ps, id);
@@ -138,8 +139,6 @@ Person *PersonSetRemove(PersonSet *ps, int id) {
 // Get the person with given id of *ps.
 // return NULL if it is not in the set.
 Person *PersonSetGet(const PersonSet *ps, int id) {
-  // You may call search here!
-  //...
   Person* p = NULL;
   
   int v = search(ps, id);
@@ -182,20 +181,10 @@ PersonSet *PersonSetIntersection(const PersonSet *ps1, const PersonSet *ps2) {
 	PersonSet *ps = PersonSetCreate();
 	if (ps == NULL) { perror("PersonSetIntersection"); exit(2); PersonSetDestroy(&ps);}
 	
-	PersonSet *temp;
-	PersonSet *tep;
-	if(ps2->size > ps1->size){
-		tep = ps2;
-		temp = ps1;
-	}else{
-		tep = ps1;
-		temp = ps2;
-	}
-
 	int y;
-	for(y = 0; y < temp->size; y++){
-		Person* t = temp->array[y];
-		int v = search(tep, t->id);
+	for(y = 0; y < ps1->size; y++){
+		Person* t = ps1->array[y];
+		int v = search(ps2, t->id);
 		if(v != 0){
 			PersonSetAdd(ps, t);
 		}
@@ -212,7 +201,8 @@ PersonSet *PersonSetDifference(const PersonSet *ps1, const PersonSet *ps2) {
 	if (ps == NULL) { perror("PersonSetUnion"); exit(2); PersonSetDestroy(&ps);}
 
 	ps = PersonSetUnion(ps1, ps2);
-	PersonSet *temp = PersonSetIntersection(ps1, ps2);
+	PersonSet *temp = PersonSetCreate();
+	temp = PersonSetIntersection(ps1, ps2);
 
 	int i;
 	for(i = 0; i < ps->size; i++){
@@ -224,24 +214,17 @@ PersonSet *PersonSetDifference(const PersonSet *ps1, const PersonSet *ps2) {
 	}
 
 	return ps;
-	
-	//Union set minus the intersection set should give the difference, why is it not working ?
 }
 
 // Return true iff *ps1 is a subset of *ps2.
 int PersonSetIsSubset(const PersonSet *ps1, const PersonSet *ps2) {
-	int b = 1;
+	int b;
 	
-	if(ps2->size >= ps1->size){
-		int y;
-		for(y = 0; y < ps1->size; y++){
-			Person* t = ps1->array[y];
-			int v = search(ps2, t->id);
-			if(v == 0){
-				b = 0;
-				break;
-			}
-		}
+	PersonSet *temp = PersonSetCreate();
+	temp = PersonSetIntersection(ps1, ps2);
+	
+	if(temp->size == ps1->size){
+		b = 1;
 	}else{
 		b = 0;
 	}
@@ -254,9 +237,9 @@ int PersonSetEquals(const PersonSet *ps1, const PersonSet *ps2) {
 	int b = 1;
 	
 	if(ps2->size == ps1->size){
-		PersonSet *intr = PersonSetIntersection(ps1, ps2);
-		// Size of intersection set gives 0, but the intersection function is working properly on previous tests, what is the problem ??
-		if(intr->size != ps1->size){
+		PersonSet *temp = PersonSetCreate();
+		temp = PersonSetIntersection(ps1, ps2);
+		if(temp->size != ps1->size){
 			b = 0;
 		}
 	}else{
