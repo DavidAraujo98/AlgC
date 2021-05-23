@@ -28,8 +28,8 @@ PersonSet* PersonSetCreate() {
   // The array should be created with INITIAL_CAPACITY elements.
   // (The array will be reallocated if necessary, when elements are appended.)
   PersonSet* p = (PersonSet*) malloc(sizeof(*p));
-  p->array = (Person**)malloc((sizeof(*p)*INITIAL_CAPACITY));
-  p->capacity = 4;
+  p->array = (Person**)malloc((sizeof(Person**)*INITIAL_CAPACITY));
+  p->capacity = INITIAL_CAPACITY;
   p->size = 0;
   
   if (p == NULL) { perror("PersonSetCreate"); exit(2); }
@@ -70,7 +70,7 @@ static int search(const PersonSet *ps, int id) {
   for(i = 0; i < ps->size; i++){
 	Person *p = array[i];
 	if(id == p->id){
-		return i;
+		return 1;
 	}
   }
   i = 0;
@@ -84,10 +84,9 @@ static void append(PersonSet *ps, Person *p) {
   // MODIFY the function so that if the array is full,
   // use realloc to double the array capacity!
   //...
-	int i = ps->size - (ps->capacity/4);
-	if(i==0){
-		ps->capacity = ps->capacity*2;
-		ps->array = (Person**)realloc(ps->array,(ps->capacity * 2));
+	if(ps->size == ps->capacity){
+		ps->capacity = ps->capacity * 2;
+		ps->array = (Person**)realloc(ps->array,sizeof(Person**)*ps->capacity);
 	}
 	ps->array[ps->size] = p;
 	ps->size++;
@@ -125,13 +124,10 @@ Person *PersonSetRemove(PersonSet *ps, int id) {
 	
 	if(v != 0){
 		p = ps->array[v];
-		ps->array[v] = ps->array[(ps->size) - 1];;
-		
+		ps->array[v] = ps->array[(ps->size) - 1];
 		ps->array[(ps->size) - 1] = NULL;
+		ps->size--;
 	}
-
-	ps->size--;
-	
 	return p;
 }
 
@@ -161,14 +157,14 @@ int PersonSetContains(const PersonSet *ps, int id) {
 // NOTE: memory is allocated.  Client must call PersonSetDestroy!
 PersonSet *PersonSetUnion(const PersonSet *ps1, const PersonSet *ps2) {
   PersonSet *ps = PersonSetCreate();
-  if (ps == NULL) { perror("PersonSetUnion"); exit(2); PersonSetDestroy(&ps);}
+  if (ps == NULL) { perror("PersonSetUnion"); exit(2);}
   
   int i;
-  for(i = 0; i < ps1->size; i++){
-	PersonSetAdd(ps, ps1->array[i]);
-  }
   for(i = 0; i < ps2->size; i++){
 	PersonSetAdd(ps, ps2->array[i]);
+  }
+  for(i = 0; i < ps1->size; i++){
+	//PersonSetAdd(ps, ps1->array[i]);
   }
   
   return ps;
@@ -179,7 +175,7 @@ PersonSet *PersonSetUnion(const PersonSet *ps1, const PersonSet *ps2) {
 // NOTE: memory is allocated.  Client must call PersonSetDestroy!
 PersonSet *PersonSetIntersection(const PersonSet *ps1, const PersonSet *ps2) {
 	PersonSet *ps = PersonSetCreate();
-	if (ps == NULL) { perror("PersonSetIntersection"); exit(2); PersonSetDestroy(&ps);}
+	if (ps == NULL) { perror("PersonSetIntersection"); exit(2);}
 	
 	int y;
 	for(y = 0; y < ps1->size; y++){
@@ -198,21 +194,24 @@ PersonSet *PersonSetIntersection(const PersonSet *ps1, const PersonSet *ps2) {
 // NOTE: memory is allocated.  Client must call PersonSetDestroy!
 PersonSet *PersonSetDifference(const PersonSet *ps1, const PersonSet *ps2) {
 	PersonSet *ps = PersonSetCreate();
-	if (ps == NULL) { perror("PersonSetUnion"); exit(2); PersonSetDestroy(&ps);}
+	if (ps == NULL) { perror("PersonSetUnion"); exit(2);}
 
-	ps = PersonSetUnion(ps1, ps2);
-	PersonSet *temp = PersonSetCreate();
-	temp = PersonSetIntersection(ps1, ps2);
-
+	
 	int i;
-	for(i = 0; i < ps->size; i++){
-		Person* t = ps->array[i];
-		int v = search(temp, t->id);
-		if(v != 0){
+	for(i = 0; i < ps1->size; i++){
+		PersonSetAdd(ps, ps1->array[i]);
+	}
+	
+	for(i = 0; i < ps2->size; i++){
+		Person* t = ps2->array[i];
+		int v = search(ps1, t->id);
+		if(v == 0){
+			PersonSetAdd(ps, t);
+		}else{
 			PersonSetRemove(ps, t->id);
 		}
 	}
-
+	
 	return ps;
 }
 
@@ -237,12 +236,16 @@ int PersonSetEquals(const PersonSet *ps1, const PersonSet *ps2) {
 	int b = 1;
 	
 	if(ps2->size == ps1->size){
-		PersonSet *temp = PersonSetCreate();
-		temp = PersonSetIntersection(ps1, ps2);
-		if(temp->size != ps1->size){
-			b = 0;
+		int i;
+		for(i = 0; i < ps2->size; i++){
+			int v = search(ps1, (ps2->array[i])->id);
+			if(!v){
+				b = 0;
+				break;
+			}
 		}
 	}else{
+		
 		b = 0;
 	}
 	
