@@ -123,6 +123,10 @@ Person *PersonSetRemove(PersonSet *ps, int id) {
 	int v = search(ps, id);
 	
 	if(v != 0){
+		if( (ps->capacity > 4) & (ps->capacity/2 > ps->size) ){
+			ps->capacity = ps->capacity / 2;
+			ps->array = (Person**)realloc(ps->array,sizeof(Person**)*ps->capacity);
+		}	
 		p = ps->array[v];
 		ps->array[v] = ps->array[(ps->size) - 1];
 		ps->array[(ps->size) - 1] = NULL;
