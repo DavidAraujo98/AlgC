@@ -126,7 +126,6 @@ void ListMove(List* l, int newPos) {
   } else {  // move to an inner node
     // Start at head (or current position) and move forward until newPos.
     //...
-	
 	if(l->currentPos == -1 || newPos < l->currentPos){
 		l->current = l->head;
 		l->currentPos = 0;
@@ -135,7 +134,6 @@ void ListMove(List* l, int newPos) {
 	for(; l->currentPos < newPos; l->currentPos++){
 		l->current = (l->current)->next;
 	}
-    
   }
   
   l->currentPos = newPos;
@@ -172,7 +170,8 @@ int ListSearch(List* l, const void* p) {
 	int v = l->compare(t->item, p);
 	
 	if(v==0){
-		ListMove(l, i);
+		l->current = t;
+		l->currentPos = i;
 		r = 0;
 		break;
 	}
@@ -298,7 +297,21 @@ void* ListRemoveCurrent(List* l) {
     // find node before current, change its next field,
     // free current, change current, change size
     //...
-    
+	int i;
+	struct _ListNode* t = l->head;
+    for(i = 0; i < l->size; i++){
+		if(t->next == l->current){
+			t->next = (t->next)->next;
+			
+			free(l->current);
+			
+			l->current = t->next;
+			l->size--;
+			break;
+		}else{
+			t = t->next;
+		}
+	}
   }
   return item;
 }
