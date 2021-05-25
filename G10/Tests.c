@@ -52,8 +52,7 @@ int main(int argc, char* argv[]) {
   PersonSet *ps2 = PersonSetCreate();
   PersonSet *ps3 = PersonSetCreate();
   SHOWint( PersonSetSize(ps1) );
-  //SHOWint( ps1->capacity );
-  
+  // SHOWint( ps1->capacity );
   
   if (++test > lasttest) return 0;
   printf("\n%d) PersonSetAdd---\n", test);
@@ -62,7 +61,6 @@ int main(int argc, char* argv[]) {
     PersonSetAdd(ps1, person[i]);
   }
   SHOWPersonSet(ps1);
-  
   for (int n = 0; n < 5; n++) {
     int i = rand()%NP;
     PersonSetAdd(ps2, person[i]);
@@ -126,7 +124,6 @@ int main(int argc, char* argv[]) {
   
   SHOWint( PersonSetEquals(ps1, ps2) );   // should be false (different sizes)
   SHOWint( PersonSetEquals(ps5, ps6) );   // must be true
-  
   
   PersonSetDestroy(&ps1);
   PersonSetDestroy(&ps2);

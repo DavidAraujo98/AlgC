@@ -12,9 +12,9 @@
 
 // Definition of the structure
 struct _PersonSet_ {
-  int capacity; // the current capacity of the array
-  int size;     // the number of elements currently stored
-  Person **array; // points to an array of pointers to persons
+	int capacity; // the current capacity of the array
+	int size;     // the number of elements currently stored
+	Person **array; // points to an array of pointers to persons
 };
 
 #define INITIAL_CAPACITY 4
@@ -24,41 +24,41 @@ struct _PersonSet_ {
 
 // Create a PersonSet.
 PersonSet* PersonSetCreate() {
-  // You must allocate space for the struct and for the array.
-  // The array should be created with INITIAL_CAPACITY elements.
-  // (The array will be reallocated if necessary, when elements are appended.)
-  PersonSet* p = (PersonSet*) malloc(sizeof(*p));
-  p->array = (Person**)malloc((sizeof(Person**)*INITIAL_CAPACITY));
-  p->capacity = INITIAL_CAPACITY;
-  p->size = 0;
-  
-  if (p == NULL) { perror("PersonSetCreate"); exit(2); }
-  
-  return p;
+	// You must allocate space for the struct and for the array.
+	// The array should be created with INITIAL_CAPACITY elements.
+	// (The array will be reallocated if necessary, when elements are appended.)
+	PersonSet* p = (PersonSet*) malloc(sizeof(*p));
+	p->array = (Person**)malloc((sizeof(Person**)*INITIAL_CAPACITY));
+	p->capacity = INITIAL_CAPACITY;
+	p->size = 0;
+
+	if (p == NULL) { perror("PersonSetCreate"); exit(2); }
+
+	return p;
 }
 
 // Destroy PersonSet *pps
 void PersonSetDestroy(PersonSet **pps) {
-  assert(*pps != NULL);
-  free(*pps);
-  *pps = NULL;  
+	assert(*pps != NULL);
+	free((*pps)->array);
+	free(*pps);
+	*pps = NULL;  
 }
 
 int PersonSetSize(const PersonSet *ps) {
-  return ps->size;
+	return ps->size;
 }
 
 int PersonSetIsEmpty(const PersonSet *ps) {
-  return ps->size == 0;
+	return ps->size == 0;
 }
 
 void PersonSetPrint(const PersonSet *ps) {
-  printf("{\n");
-  for (int i = 0; i < ps->size; i++) {
-    Person *p = ps->array[i];
-    PersonPrintf(p, ";\n");
-  }
-  printf("}(size=%d, capacity=%d)\n", ps->size, ps->capacity);
+	printf("{\n");
+	for (int i = 0; i < ps->size; i++) {
+		PersonPrintf(ps->array[i], ";\n");
+	}
+	printf("}(size=%d, capacity=%d)\n", ps->size, ps->capacity);
 }
 
 
@@ -66,10 +66,8 @@ void PersonSetPrint(const PersonSet *ps) {
 // (INTERNAL function.)
 static int search(const PersonSet *ps, int id) {
   int i;
-  Person **array = ps->array;
   for(i = 0; i < ps->size; i++){
-	Person *p = array[i];
-	if(id == p->id){
+	if(id == (ps->array[i])->id){
 		return 1;
 	}
   }
@@ -109,8 +107,8 @@ Person* PersonSetPop(PersonSet *ps) {
 	// It is easiest to pop and return the person in the last position!
 	//...
 	Person *p = ps->array[(ps->size -1)];
-	ps->array[(ps->size -1)]  = NULL;
-	ps->size--;
+	
+	PersonSetRemove(ps, (ps->array[(ps->size -1)])->id);
 	
 	return p;
 }
@@ -139,15 +137,17 @@ Person *PersonSetRemove(PersonSet *ps, int id) {
 // Get the person with given id of *ps.
 // return NULL if it is not in the set.
 Person *PersonSetGet(const PersonSet *ps, int id) {
-  Person* p = NULL;
-  
-  int v = search(ps, id);
-  
-  if(v > 0){
-	p = ps->array[v];
-  }
-  
-  return p;
+	Person* p = NULL;
+
+	int i;
+	for(i = 0; i < ps->size; i++){
+		int v = search(ps, (ps->array[i])->id);
+		if(v){
+			p = ps->array[i];
+		}
+	}
+
+	return p;
 }
 
 // Return true (!= 0) if set contains person wiht given id, false otherwise.
@@ -168,7 +168,7 @@ PersonSet *PersonSetUnion(const PersonSet *ps1, const PersonSet *ps2) {
 	PersonSetAdd(ps, ps2->array[i]);
   }
   for(i = 0; i < ps1->size; i++){
-	//PersonSetAdd(ps, ps1->array[i]);
+	PersonSetAdd(ps, ps1->array[i]);
   }
   
   return ps;
@@ -183,10 +183,9 @@ PersonSet *PersonSetIntersection(const PersonSet *ps1, const PersonSet *ps2) {
 	
 	int y;
 	for(y = 0; y < ps1->size; y++){
-		Person* t = ps1->array[y];
-		int v = search(ps2, t->id);
+		int v = search(ps2, (ps1->array[y])->id);
 		if(v != 0){
-			PersonSetAdd(ps, t);
+			PersonSetAdd(ps, ps1->array[y]);
 		}
 	}
 
@@ -199,7 +198,6 @@ PersonSet *PersonSetIntersection(const PersonSet *ps1, const PersonSet *ps2) {
 PersonSet *PersonSetDifference(const PersonSet *ps1, const PersonSet *ps2) {
 	PersonSet *ps = PersonSetCreate();
 	if (ps == NULL) { perror("PersonSetUnion"); exit(2);}
-
 	
 	int i;
 	for(i = 0; i < ps1->size; i++){
@@ -207,12 +205,11 @@ PersonSet *PersonSetDifference(const PersonSet *ps1, const PersonSet *ps2) {
 	}
 	
 	for(i = 0; i < ps2->size; i++){
-		Person* t = ps2->array[i];
-		int v = search(ps1, t->id);
+		int v = search(ps1, (ps2->array[i])->id);
 		if(v == 0){
-			PersonSetAdd(ps, t);
+			PersonSetAdd(ps, ps2->array[i]);
 		}else{
-			PersonSetRemove(ps, t->id);
+			PersonSetRemove(ps, (ps2->array[i])->id);
 		}
 	}
 	
@@ -232,6 +229,8 @@ int PersonSetIsSubset(const PersonSet *ps1, const PersonSet *ps2) {
 		b = 0;
 	}
 	
+	PersonSetDestroy(&temp);
+	
 	return b; 
 }
 
@@ -249,7 +248,6 @@ int PersonSetEquals(const PersonSet *ps1, const PersonSet *ps2) {
 			}
 		}
 	}else{
-		
 		b = 0;
 	}
 	
