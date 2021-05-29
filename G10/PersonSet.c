@@ -36,7 +36,12 @@ PersonSet *PersonSetCreate() {
 	// You must allocate space for the struct and create an empty persons list!
 	//...
 	PersonSet* p = (PersonSet*) malloc(sizeof(*p));
-	p->persons = (List*)malloc(sizeof(p->persons));
+	p->persons = (List*) malloc(sizeof(List*));
+	p->persons = ListCreate(cmpP);
+	
+	if (p == NULL) { perror("PersonSetCreate"); exit(2); }
+	
+	return p;
 }
 
 // Destroy PersonSet *pps
@@ -91,10 +96,12 @@ Person *PersonSetPop(PersonSet *ps) {
 Person *PersonSetRemove(PersonSet *ps, int id) {
 	// You may call search here!
 	//...
-	if(ListSearch(ps->persons, id)){
-			ListRemoveCurrent(ps->persons);
+	Person* p = NULL;
+	if(search(ps, id)==0){
+		p = ListGetCurrentItem(ps->persons);
 	}
-
+	ListRemoveCurrent(ps->persons);
+	return p;
 }
 
 // Get the person with given id of *ps.
@@ -102,10 +109,11 @@ Person *PersonSetRemove(PersonSet *ps, int id) {
 Person *PersonSetGet(const PersonSet *ps, int id) {
 	// You may call search here!
 	//...
-	if(ListSearch(ps->persons, id)){
-		return ListGetCurrentItem(ps->persons);
+	Person* p = NULL;
+	if(search(ps, id)==0){
+		p = ListGetCurrentItem(ps->persons);
 	}
-	return NULL;
+	return p;
 }
 
 // Return true (!= 0) if set contains person wiht given id, false otherwise.
@@ -137,20 +145,23 @@ PersonSet *PersonSetUnion(const PersonSet *ps1, const PersonSet *ps2) {
 // Return a NEW PersonSet with the intersection of *ps1 and *ps2.
 // NOTE: memory is allocated.  Client must call PersonSetDestroy!
 PersonSet *PersonSetIntersection(const PersonSet *ps1, const PersonSet *ps2) {
-	PersonSet *ps = PersonSetCreate();
+	PersonSet *ps = PersonSetCreate(cmpP);
 	//...
+	ListMoveToHead(ps1->persons);
+	ListMoveToHead(ps2->persons);
 	while(ListGetCurrentPos(ps1->persons)){
 		int v = 0;
 		while(ListGetCurrentPos(ps2->persons)){
 		
-			v = (ps1->persons)->compare(ListGetCurrentItem(ps1->persons), ListGetCurrentItem(ps2->persons));
+			v = cmpP(ListGetCurrentItem(ps1->persons), ListGetCurrentItem(ps2->persons));
+			
 			if(!v){break;}
 			
 			ListMoveToNext(ps2->persons);
 		}
 		
 		if(!v){
-				ListInsert(ps->persons, ListGetCurrentItem(ps1->persons));
+			ListInsert(ps->persons, ListGetCurrentItem(ps1->persons));
 		}
 			
 		
@@ -163,21 +174,40 @@ PersonSet *PersonSetIntersection(const PersonSet *ps1, const PersonSet *ps2) {
 // Return a NEW PersonSet with the set difference of *ps1 and *ps2.
 // NOTE: memory is allocated.  Client must call PersonSetDestroy!
 PersonSet *PersonSetDifference(const PersonSet *ps1, const PersonSet *ps2) {
-  PersonSet *ps = PersonSetCreate();
-  //...
-  
-  return ps;
+	PersonSet *ps = PersonSetCreate();
+	//...
+	
+	ListMoveToHead(ps1->persons);
+	while(ListGetCurrentPos(ps1->persons)){
+		ListInsert(ps->persons, ListGetCurrentItem(ps1->persons));
+		ListMoveToNext(ps1->persons);
+	}
+	
+	ListMoveToHead(ps2->persons);
+	while(ListGetCurrentPos(ps2->persons)){
+		
+		int i = ((Person*)ListGetCurrentItem(ps2->persons))->id;
+		
+		if(!search(ps1, i)){
+			ListInsert(ps->persons, ListGetCurrentItem(ps2->persons));
+		}
+		
+		ListMoveToNext(ps2->persons);
+	}
+
+	return ps;
 }
 
 // Return true iff *ps1 is a subset of *ps2.
 int PersonSetIsSubset(const PersonSet *ps1, const PersonSet *ps2) {
   //...
   
+  return 0;
 }
 
 // Return true if the two sets contain exactly the same elements.
 int PersonSetEquals(const PersonSet *ps1, const PersonSet *ps2) {
   // You may call PersonSetIsSubset here!
   //...
-  
+  return 0;
 }

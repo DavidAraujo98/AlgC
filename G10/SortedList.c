@@ -164,7 +164,6 @@ int ListSearch(List* l, const void* p) {
   
   int i;
   struct _ListNode* t = l->head;
-  
   for(i = 0; i < l->size; i++){
 	
 	int v = l->compare(t->item, p);
