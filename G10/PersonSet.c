@@ -99,8 +99,9 @@ Person *PersonSetRemove(PersonSet *ps, int id) {
 	Person* p = NULL;
 	if(search(ps, id)==0){
 		p = ListGetCurrentItem(ps->persons);
+		ListRemoveCurrent(ps->persons);
 	}
-	ListRemoveCurrent(ps->persons);
+	
 	return p;
 }
 
@@ -129,12 +130,14 @@ PersonSet *PersonSetUnion(const PersonSet *ps1, const PersonSet *ps2) {
 	// Merge the two sorted lists (similar to mergesort).
 	//...
 	
-	while(ListGetCurrentPos(ps1->persons)){
+	ListMoveToHead(ps1->persons);
+	while(ListCurrentIsInside(ps1->persons)){
 		ListInsert(ps->persons, ListGetCurrentItem(ps1->persons));
 		ListMoveToNext(ps1->persons);
 	}
 	
-	while(ListGetCurrentPos(ps2->persons)){
+	ListMoveToHead(ps2->persons);
+	while(ListCurrentIsInside(ps2->persons)){
 		ListInsert(ps->persons, ListGetCurrentItem(ps2->persons));
 		ListMoveToNext(ps2->persons);
 	}
@@ -148,10 +151,11 @@ PersonSet *PersonSetIntersection(const PersonSet *ps1, const PersonSet *ps2) {
 	PersonSet *ps = PersonSetCreate(cmpP);
 	//...
 	ListMoveToHead(ps1->persons);
-	ListMoveToHead(ps2->persons);
-	while(ListGetCurrentPos(ps1->persons)){
+	while(ListCurrentIsInside(ps1->persons)){
 		int v = 0;
-		while(ListGetCurrentPos(ps2->persons)){
+		
+		ListMoveToHead(ps2->persons);
+		while(ListCurrentIsInside(ps2->persons)){
 		
 			v = cmpP(ListGetCurrentItem(ps1->persons), ListGetCurrentItem(ps2->persons));
 			
@@ -178,13 +182,13 @@ PersonSet *PersonSetDifference(const PersonSet *ps1, const PersonSet *ps2) {
 	//...
 	
 	ListMoveToHead(ps1->persons);
-	while(ListGetCurrentPos(ps1->persons)){
+	while(ListCurrentIsInside(ps1->persons)){
 		ListInsert(ps->persons, ListGetCurrentItem(ps1->persons));
 		ListMoveToNext(ps1->persons);
 	}
 	
 	ListMoveToHead(ps2->persons);
-	while(ListGetCurrentPos(ps2->persons)){
+	while(ListCurrentIsInside(ps2->persons)){
 		
 		int i = ((Person*)ListGetCurrentItem(ps2->persons))->id;
 		
@@ -200,14 +204,14 @@ PersonSet *PersonSetDifference(const PersonSet *ps1, const PersonSet *ps2) {
 
 // Return true iff *ps1 is a subset of *ps2.
 int PersonSetIsSubset(const PersonSet *ps1, const PersonSet *ps2) {
-  //...
-  
-  return 0;
+	
+	
+	return 0;
 }
 
 // Return true if the two sets contain exactly the same elements.
 int PersonSetEquals(const PersonSet *ps1, const PersonSet *ps2) {
-  // You may call PersonSetIsSubset here!
-  //...
-  return 0;
+	// You may call PersonSetIsSubset here!
+	//...
+	return 0;
 }
