@@ -35,8 +35,7 @@ static int cmpP(const void *a, const void *b) {
 PersonSet *PersonSetCreate() {
 	// You must allocate space for the struct and create an empty persons list!
 	//...
-	PersonSet* p = (PersonSet*) malloc(sizeof(*p));
-	p->persons = (List*) malloc(sizeof(List*));
+	PersonSet* p = (PersonSet*) malloc(sizeof(p));
 	p->persons = ListCreate(cmpP);
 	
 	if (p == NULL) { perror("PersonSetCreate"); exit(2); }
@@ -47,6 +46,7 @@ PersonSet *PersonSetCreate() {
 // Destroy PersonSet *pps
 void PersonSetDestroy(PersonSet **pps) {
 	assert(*pps != NULL);
+	ListDestroy(&((*pps)->persons));
 	free((*pps)->persons);
 	free(*pps);
 	*pps = NULL;  
@@ -190,28 +190,49 @@ PersonSet *PersonSetDifference(const PersonSet *ps1, const PersonSet *ps2) {
 	ListMoveToHead(ps2->persons);
 	while(ListCurrentIsInside(ps2->persons)){
 		
-		int i = ((Person*)ListGetCurrentItem(ps2->persons))->id;
+		int i = ((Person*)ListGetCurrentItem(ps2->persons))->id;		
 		
-		if(!search(ps1, i)){
+		if(search(ps, i)!=0){
 			ListInsert(ps->persons, ListGetCurrentItem(ps2->persons));
+		}else{
+			ListMove(ps->persons, i);
+			//ListMoveToPrevious(ps->persons);
+			ListRemoveCurrent(ps->persons);
 		}
 		
 		ListMoveToNext(ps2->persons);
 	}
-
 	return ps;
 }
 
 // Return true iff *ps1 is a subset of *ps2.
 int PersonSetIsSubset(const PersonSet *ps1, const PersonSet *ps2) {
+	int r = 1;
 	
+	ListMoveToHead(ps1->persons);
+	while(ListCurrentIsInside(ps1->persons)){
+		
+		int i = ((Person*)ListGetCurrentItem(ps1->persons))->id;
+		
+		if(search(ps1, i)!=0){
+			r = 0;
+			break;
+		}
+			
+		ListMoveToNext(ps1->persons);
+	}
 	
-	return 0;
+	return r;
 }
 
 // Return true if the two sets contain exactly the same elements.
 int PersonSetEquals(const PersonSet *ps1, const PersonSet *ps2) {
 	// You may call PersonSetIsSubset here!
 	//...
+	
+	if(PersonSetIsSubset(ps1, ps2) && ListGetSize(ps1->persons) == ListGetSize(ps2->persons)){
+		return 1;
+	}
+	
 	return 0;
 }
