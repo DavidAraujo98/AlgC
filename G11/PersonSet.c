@@ -36,16 +36,19 @@ static void printP(void *p) { PersonPrintf((Person *)p, ""); }
 
 // Create a PersonSet.
 PersonSet *PersonSetCreate() {
-  // You must allocate space for the struct and create an empty persons tree!
-  //...
+  PersonSet* p = (PersonSet*)malloc(sizeof(struct _PersonSet_));
+  p->persons = BSTreeCreate(cmpP,printP);
   
+  if (p == NULL) abort();
 }
 
 // Destroy PersonSet *pps
 void PersonSetDestroy(PersonSet **pps) {
-  assert(*pps != NULL);
-  //...
-  
+	assert(*pps != NULL);
+	BSTreeDestroy(&(**pps)->persons);
+	free((*pps)->persons);
+	free(*pps);
+	*pps = NULL;
 }
 
 int PersonSetSize(const PersonSet *ps) {
