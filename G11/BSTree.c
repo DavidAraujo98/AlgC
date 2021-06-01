@@ -133,10 +133,10 @@ void* BSTreeGetMin(const BSTree* header) {
   
   struct _BSTreeNode* node = header->root;
   
-  while(node->height <= BSTreeGetHeight(header)){
+  while(node->left != NULL){
   	node = node->left;
   }
-  
+   
   return node->item;
 }
 
@@ -147,13 +147,14 @@ static void* _treeGetMax(const struct _BSTreeNode* root) {
 
   // Complete a função com uma solução RECURSIVA.
   // ...
+  
+  void* f = root->item;
  
-  if(root->right->item == NULL) {
-  	return root->item;	
-  }else{
-  	return _treeGetMax(root->right);
+  if(root->right != NULL) {
+  	f = _treeGetMax(root->right);
   }
-
+  
+  return f;
 }
 
 // Acha e devolve o maior item da árvore.
@@ -176,11 +177,11 @@ void* BSTreeSearch(const BSTree* header, const void* item) {
   while (current != NULL) {
     // Complete o corpo do ciclo.
     // ...
-    if(header->compare(current, item)==0){
+    if(header->compare(current->item, item)==0){
     	return current->item;
-    }else if(header->compare(current, item) > 0){
+    }else if(header->compare(current->item, item) > 0){
     	current = current->left;
-    }else if(header->compare(current, item) < 0){
+    }else if(header->compare(current->item, item) < 0){
     	current = current->right;
     }
   }
