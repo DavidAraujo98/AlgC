@@ -52,7 +52,7 @@ int main(int argc, char* argv[]) {
 	int numFiles = argc - 1;
 
 	// Create heap with capacity for one line buffer per file:
-	MinHeap* H = MinHeapCreate(numFiles,comparator,printer);
+	MinHeap* H = MinHeapCreate(argc,comparator,printer);
 	if (H == NULL) abort();
 
 	for (int i = 0; i < numFiles; i++) {
@@ -79,11 +79,12 @@ int main(int argc, char* argv[]) {
 		fputs(line, stdout);  // output the line
 
 		// 2a. Advance the reader to the next line:
-		int ok = ...
+		int ok = FileReaderNextLine(fr);
 
 		if (ok) {  // On success:
 			// 2b: Reinsert file reader into the Heap:
 			//...
+			MinHeapInsert(H, fr);
 		}
 		else {  // On EOF or Error:
 			if (FileReaderError(fr)) {
@@ -92,6 +93,7 @@ int main(int argc, char* argv[]) {
 			}
 			// 2c: Close the file reader:
 			//...
+			FileReaderClose(fr);
 			numFiles--;  // Decrease number of open files
 		}
 	}
