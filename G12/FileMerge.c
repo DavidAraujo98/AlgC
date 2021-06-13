@@ -48,31 +48,31 @@ void printer(void* p) {
 }
 
 int main(int argc, char* argv[]) {
-  // Number of files in arguments:
+	// Number of files in arguments:
 	int numFiles = argc - 1;
 
 	// Create heap with capacity for one line buffer per file:
-	MinHeap* H = ...
+	MinHeap* H = MinHeapCreate(numFiles,comparator,printer);
 	if (H == NULL) abort();
 
 	for (int i = 0; i < numFiles; i++) {
-	// Open a FileReader for each argument:
-		FileReader* fr = ...
+		// Open a FileReader for each argument:
+		FileReader* fr = FileReaderOpen(argv[i]);
 		if (FileReaderError(fr)) {
 			perror(fr->name);
 			exit(1);
 		}
-
-	// Insert this file reader object into the Heap:
-	//...
+		// Insert this file reader object into the Heap:
+		//...
+		MinHeapInsert(H, fr);
 	}
 
 	while (numFiles > 0) {
 		FileReader* fr;
 
 		// 1a. Get the first file reader from the Heap and remove it:
-		fr = ...
-
+		fr = MinHeapGetMin(H);
+		MinHeapRemoveMin(H);
 
 		// 1b. Output the current line from that reader:
 		char* line = FileReaderBuffer(fr);
@@ -82,8 +82,8 @@ int main(int argc, char* argv[]) {
 		int ok = ...
 
 		if (ok) {  // On success:
-		// 2b: Reinsert file reader into the Heap:
-		//...
+			// 2b: Reinsert file reader into the Heap:
+			//...
 		}
 		else {  // On EOF or Error:
 			if (FileReaderError(fr)) {
@@ -96,6 +96,6 @@ int main(int argc, char* argv[]) {
 		}
 	}
 
-  // House-keeping
+	// House-keeping
 	MinHeapDestroy(&H);
 }
