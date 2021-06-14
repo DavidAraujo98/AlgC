@@ -44,8 +44,8 @@
 // The comparator for integer items
 
 int comparator(const void* p1, const void* p2) {
-	int d = *(int*)p1 - *(int*)p2;
-	return (d > 0) - (d < 0);
+  int d = *(int*)p1 - *(int*)p2;
+  return (d > 0) - (d < 0);
 }
 
 // The printer for integer items
@@ -55,66 +55,78 @@ void printer(void* p) { printf("%d ", *(int*)p); }
 // MAIN
 
 int main(int argc, char* argv[]) {
-	if (argc < 3) {
-		fprintf(stderr, "Usage: %s K FILE\n", argv[0]);
-		exit(1);
-	}
+  if (argc < 3) {
+    fprintf(stderr, "Usage: %s K FILE\n", argv[0]);
+    exit(1);
+  }
 
   // k -> number of largest values we are looking for
-	int k = atoi(argv[1]);
+  int k = atoi(argv[1]);
 
-	FILE* f = fopen(argv[2], "r");
-	if (f == NULL) {
-		perror(argv[2]);
-		exit(2);
-	}
+  FILE* f = fopen(argv[2], "r");
+  if (f == NULL) {
+    perror(argv[2]);
+    exit(2);
+  }
   
   // Create heap
-	MinHeap* h = MinHeapCreate(k+1, comparator, printer);
-	if (h == NULL) abort();
+  MinHeap* h = MinHeapCreate(k, comparator, printer);
+  if (h == NULL) abort();
 
   // Read the first K values into a MIN-heap
   //    Allocate memory space for an integer
   //    Read it from file
-  //    Insert it in the heap	
-  
-	int i;
-	for(i = 0; i <= k; i++) {
-		int* r = (int*)malloc(sizeof(*r)); 
-		
-		fscanf (f, "%d", r);
-		MinHeapInsert(h,r);
-		
-		free(r);
-	}
-	
-  // Read and process each one of the remaining values
-	
-	while (!feof(f)) {
-		int* r = (int*)malloc(sizeof(*r)); 
-		
-		fscanf (f, "%d", r);
+  //    Insert it in the heap
 
-		if((int*)MinHeapGetMin(h) < r){
-			MinHeapRemoveMin(h);
-			MinHeapInsert(h,r);
-		}
-		
-		free(r);
-	}
+  int i;
+  for( i=0; i < k; i++ ) { 
+    //    Allocate memory space for an integer
+    int* aux = (int*) malloc(sizeof(int));
+
+    //    Read it from file
+    fscanf(f, "%d", aux);
+
+    //    Insert it in the heap
+    MinHeapInsert(h, (void*)aux);
+
+   }
+
+  // Read and process each one of the remaining values
+  while (!feof(f)) {
+    //alocar espaço
+    int* aux = (int*) malloc(sizeof(int));
+
+    //ler
+    fscanf(f, "%d", aux);
+
+    int* min = (int*) MinHeapGetMin(h);
+
+    if (*aux > *min)
+    {
+      MinHeapRemoveMin(h);
+      free(min);
+      MinHeapInsert(h, (void*) aux);
+    } else
+    {
+      free(aux);
+    }
+    
+    
+    
+  }
 
   // The heap stores the largest k values
   // List them by removing each one from the heap
 
-	while(!MinHeapIsEmpty(h)){
-		int* aux = (int*)MinHeapGetMin(h);
-		printf("%d\n", *aux);
-		MinHeapRemoveMin(h);
-		
-		free(aux);
-	}
+  while( !MinHeapIsEmpty(h) ) 
+  { 
+    int* aux = (int*) MinHeapGetMin(h); //descobrir o minimo
+    MinHeapRemoveMin(h);
+    printf("%d\n", *aux);
+    free(aux); //libertar
+  }
 
   // House-keeping
-	MinHeapDestroy(&h);
-	fclose(f);
+  MinHeapDestroy(&h);
+  fclose(f);
 }
